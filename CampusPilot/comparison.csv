@@ -1,0 +1,25 @@
+query,algorithm,distance_m,walking_time_s,nodes_explored_count,path,path_length,execution_time_s,success
+Main Gate → Library,BFS,333.2815509219852,238.05825065856087,11,Main Gate → Admin Block → Faculty Block → Library,4,2.765655517578125e-05,True
+Main Gate → Library,DFS,333.2815509219852,238.05825065856087,23,Main Gate → Admin Block → Faculty Block → Library,4,2.3365020751953125e-05,True
+Main Gate → Library,UCS,333.2815509219852,238.05825065856087,10,Main Gate → Admin Block → Faculty Block → Library,4,4.076957702636719e-05,True
+Main Gate → Library,A_STAR,333.2815509219852,238.05825065856087,7,Main Gate → Admin Block → Faculty Block → Library,4,4.506111145019531e-05,True
+Hostel A → Admin Block,BFS,789.9120883173711,564.2229202266936,22,Hostel A → Bridge → Library → Faculty Block → Admin Block,5,1.8596649169921875e-05,True
+Hostel A → Admin Block,DFS,1559.3532680904673,1113.8237629217624,30,Hostel A → Food Court 1 → Food Court → Sports Complex → Engineering Block → Auditorium → Library → Faculty Block → Admin Block,9,2.1696090698242188e-05,True
+Hostel A → Admin Block,UCS,789.9120883173711,564.2229202266936,34,Hostel A → Bridge → Library → Faculty Block → Admin Block,5,4.9591064453125e-05,True
+Hostel A → Admin Block,A_STAR,789.9120883173711,564.2229202266936,20,Hostel A → Bridge → Library → Faculty Block → Admin Block,5,6.794929504394531e-05,True
+Sports Complex → Faculty Block,BFS,913.0701561558277,652.1929686827341,29,Sports Complex → Engineering Block → Auditorium → Library → Faculty Block,5,2.47955322265625e-05,True
+Sports Complex → Faculty Block,DFS,1527.7488321961941,1091.2491658544245,28,Sports Complex → Engineering Block → Management Block → Bridge → Library → Faculty Block,6,2.288818359375e-05,True
+Sports Complex → Faculty Block,UCS,913.0701561558277,652.1929686827341,33,Sports Complex → Engineering Block → Auditorium → Library → Faculty Block,5,4.363059997558594e-05,True
+Sports Complex → Faculty Block,A_STAR,913.0701561558277,652.1929686827341,20,Sports Complex → Engineering Block → Auditorium → Library → Faculty Block,5,5.0067901611328125e-05,True
+Entry Gate → Food Court,BFS,1593.6629151159962,1138.330653654283,36,Entry Gate → Main Gate → Admin Block → Faculty Block → Library → Auditorium → Engineering Block → Sports Complex → Food Court,9,2.0503997802734375e-05,True
+Entry Gate → Food Court,DFS,1265.1963965481452,903.7117118201038,30,Entry Gate → Main Gate → Admin Block → Faculty Block → Library → Bridge → Hostel A → Food Court 1 → Food Court,9,1.6927719116210938e-05,True
+Entry Gate → Food Court,UCS,1265.1963965481452,903.7117118201038,35,Entry Gate → Main Gate → Admin Block → Faculty Block → Library → Bridge → Hostel A → Food Court 1 → Food Court,9,5.936622619628906e-05,True
+Entry Gate → Food Court,A_STAR,1265.1963965481452,903.7117118201038,33,Entry Gate → Main Gate → Admin Block → Faculty Block → Library → Bridge → Hostel A → Food Court 1 → Food Court,9,7.271766662597656e-05,True
+Engineering Block → Cricket Ground,BFS,664.3016301142217,474.5011643673012,15,Engineering Block → Sports Complex → Cricket Ground,3,1.0251998901367188e-05,True
+Engineering Block → Cricket Ground,DFS,664.3016301142217,474.5011643673012,9,Engineering Block → Sports Complex → Cricket Ground,3,7.62939453125e-06,True
+Engineering Block → Cricket Ground,UCS,664.3016301142217,474.5011643673012,31,Engineering Block → Sports Complex → Cricket Ground,3,3.62396240234375e-05,True
+Engineering Block → Cricket Ground,A_STAR,664.3016301142217,474.5011643673012,3,Engineering Block → Sports Complex → Cricket Ground,3,1.3828277587890625e-05,True
+Flag Post → Auditorium,BFS,874.180112249519,624.4143658925136,28,Flag Post → Check Post 2 → Check Post 1 → Biometric Entry → Main Gate → Admin Block → Faculty Block → Library → Auditorium,9,1.6927719116210938e-05,True
+Flag Post → Auditorium,DFS,874.180112249519,624.4143658925136,41,Flag Post → Check Post 2 → Check Post 1 → Biometric Entry → Main Gate → Admin Block → Faculty Block → Library → Auditorium,9,2.2411346435546875e-05,True
+Flag Post → Auditorium,UCS,874.180112249519,624.4143658925136,27,Flag Post → Check Post 2 → Check Post 1 → Biometric Entry → Main Gate → Admin Block → Faculty Block → Library → Auditorium,9,3.123283386230469e-05,True
+Flag Post → Auditorium,A_STAR,874.180112249519,624.4143658925136,23,Flag Post → Check Post 2 → Check Post 1 → Biometric Entry → Main Gate → Admin Block → Faculty Block → Library → Auditorium,9,6.771087646484375e-05,True

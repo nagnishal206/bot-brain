@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Results - BotBrain</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .map-panel {
+            grid-column: 1 / -1;
+        }
+        .error {
+            color: #e74c3c;
+            background-color: #fdf2f2;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #e74c3c;
+        }
+        .route-info {
+            background-color: #e8f6f3;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .route-item {
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #3498db;
+            background-color: #f8f9fa;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .comparison-table th {
+            background-color: #34495e;
+            color: white;
+        }
+        .best-result {
+            background-color: #d4edda;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .path-display {
+            font-family: monospace;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h3 {
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 BotBrain - Navigation Results</h1>
+            <a href="/" class="btn">← New Search</a>
+            {% if start_node and goal_node %}
+            <a href="/download_csv?start={{ start_node }}&goal={{ goal_node }}" class="btn">📊 Download CSV</a>
+            {% endif %}
+        </div>
+        
+        {% if error %}
+        <div class="panel">
+            <div class="error">
+                <h3>Error</h3>
+                <p>{{ error }}</p>
+            </div>
+        </div>
+        {% else %}
+        
+        <div class="content">
+            <!-- Main Route Results -->
+            <div class="panel">
+                <h2>🏆 Best Route ({{ best_algorithm.upper() }} - Optimal)</h2>
+                
+                {% if main_result and main_result.path %}
+                <div class="route-info">
+                    <h3>🎯 Optimal Route: {{ start_node }} → {{ goal_node }}</h3>
+                    <p><strong>📏 Distance:</strong> {{ "%.1f"|format(main_result.distance_m) }} meters</p>
+                    <p><strong>⏱️ Walking Time:</strong> {{ "%.1f"|format(main_result.walking_time_s / 60) }} minutes</p>
+                    <p><strong>🔍 Efficiency:</strong> {{ main_result.nodes_explored_count }} nodes explored</p>
+                    <p><strong>🧠 Algorithm:</strong> {{ best_algorithm.upper() }} found this shortest path</p>
+                </div>
+                
+                <div class="path-display">
+                    <strong>Path:</strong> {{ ' → '.join(main_result.path) }}
+                </div>
+                {% else %}
+                <div class="error">
+                    <p>No route found between {{ start_node }} and {{ goal_node }}</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Alternative Routes -->
+            <div class="panel">
+                <h2>🛤️ Alternative Routes</h2>
+                
+                {% if k_paths %}
+                {% for path_info in k_paths %}
+                <div class="route-item">
+                    <h4>Route {{ loop.index }}{% if loop.index == 1 %} 🥇 (Best - Shortest Distance){% elif loop.index == 2 %} 🥈 (Alternative){% elif loop.index == 3 %} 🥉 (Alternative){% else %} (Alternative){% endif %}</h4>
+                    <p><strong>📏 Distance:</strong> {{ "%.1f"|format(path_info.distance_m) }}m</p>
+                    <p><strong>⏱️ Time:</strong> {{ "%.1f"|format(path_info.walking_time_s / 60) }} min</p>
+                    <div class="path-display">
+                        {{ ' → '.join(path_info.path) }}
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p>No alternative routes available</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Interactive Map -->
+        <div class="panel map-panel">
+            <h2>🗺️ Interactive Campus Map</h2>
+            {% if map_html %}
+            <div style="height: 500px; overflow: hidden;">
+                {{ map_html|safe }}
+            </div>
+            {% else %}
+            <p>Map not available</p>
+            {% endif %}
+        </div>
+        
+        <!-- Algorithm Comparison -->
+        {% if comparison_results %}
+        <div class="panel map-panel">
+            <h2>⚡ All Algorithms Performance Comparison</h2>
+            <p><em>BotBrain automatically tested all pathfinding algorithms to find you the best route:</em></p>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>Distance (m)</th>
+                        <th>Walking Time (min)</th>
+                        <th>Nodes Explored</th>
+                        <th>Path Length</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set best_distance = comparison_results.values() | map(attribute='distance_m') | min %}
+                    {% set best_nodes = comparison_results.values() | map(attribute='nodes_explored_count') | min %}
+                    
+                    {% for alg_name, result in comparison_results.items() %}
+                    <tr {% if result.distance_m == best_distance %}class="best-result"{% endif %}>
+                        <td><strong>{{ alg_name.upper() }}{% if alg_name == 'ucs' %} (Dijkstra){% endif %}{% if result.distance_m == best_distance %} 🏆{% endif %}</strong></td>
+                        <td>{{ "%.1f"|format(result.distance_m) }}{% if result.distance_m == best_distance %} ⭐{% endif %}</td>
+                        <td>{{ "%.1f"|format(result.walking_time_s / 60) }}</td>
+                        <td>{{ result.nodes_explored_count }}</td>
+                        <td>{{ result.path | length }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <p style="margin-top: 15px;"><em>🏆 Green row with star shows the optimal algorithm that found the shortest path. Lower "Nodes Explored" means better efficiency.</em></p>
+        </div>
+        {% endif %}
+        
+        {% endif %}
+    </div>
+</body>
+</html>

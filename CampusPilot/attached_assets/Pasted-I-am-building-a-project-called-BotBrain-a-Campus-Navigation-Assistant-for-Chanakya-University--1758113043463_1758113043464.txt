@@ -1,0 +1,84 @@
+I am building a project called "BotBrain" — a Campus Navigation Assistant for Chanakya University. 
+Please create a complete Python project that includes both a CLI and a web UI (Flask) with the following files and behavior:
+
+PROJECT STRUCTURE (files to create)
+- campus_graph.py     # KML parser + fallback graph builder (adjacency list with 'weight' in meters and lat/lon coords)
+- search_algorithms.py# BFS, DFS, UCS, A* (all must compute path, total distance, walking time and nodes explored)
+- botbrain.py         # CLI entrypoint
+- webapp.py           # Flask web app + endpoints
+- templates/index.html, templates/results.html  # Simple Jinja2 templates
+- visualizer.py       # utilities to draw and save static map (matplotlib) and helper to create folium maps
+- tests.py            # runs sample queries, saves comparison CSV
+- requirements.txt    # dependencies
+- static/              # any CSS/JS assets
+
+KML PARSING / GRAPH
+1. campus_graph.py should:
+   - Try to load 'campus.kml' from the working directory.
+   - If KML exists: parse Points/Placemarks and LineStrings using `fastkml` + `shapely` (or `simplekml` + `shapely`) to extract node names and lat/lon (Point) and path segments (LineString).
+   - Build an adjacency list `graph = {node_name: {neighbor_name: {'weight': meters, 'coords': (lat,lon)}, ...}, ...}`
+   - Use the Haversine formula to compute accurate distances in meters between node coordinates for edges (store as `'weight'`).
+   - If no KML found or a node is missing, fallback to a **default graph** that contains all these landmarks (union of requested sets): 
+     Entry Gate, Exit Gate, Main Gate, Admin Block, Faculty Block, Library, Hostel A, Hostel B, Food Court 1, Food Court 2, Food Court, Sports Complex, Cricket Ground, Volleyball Court, Tennis Court, Football Ground, Auditorium, Engineering Block, Management Block, Biometric Entry, Flag Post, Check Post 1, Check Post 2, Acad 1, Acad 2, Bridge.
+   - Connect fallback nodes with reasonable approximate distances (100–400m) so the graph is fully connected for demos.
+   - Expose a function `load_graph(kml_path=None)` that returns `(graph, coords)` where coords maps node -> (lat, lon) if available.
+
+SEARCH ALGORITHMS (correctness & bug-fix)
+2. search_algorithms.py should implement:
+   - BFS (queue), DFS (stack), Uniform Cost Search (priority queue / Dijkstra style), A* (priority queue with Euclidean/Haversine heuristic on lat/lon).
+   - **Important fix**: After any algorithm returns a `path` (list of node names), compute `total_distance` exactly by summing edge `'weight'` values:
+         total_distance = sum(graph[u][v]['weight'] for u, v in zip(path, path[1:]))
+     This ensures distances differ correctly across algorithms (BFS/DFS return paths based on edges count; UCS/A* return cost-optimal paths by distance).
+   - Each algorithm must return a dict with:
+       { 'path': [...], 'distance_m': float, 'walking_time_s': float, 'nodes_explored': [...], 'nodes_explored_count': int }
+   - Walking time = distance_m / 1.4 (m/s).
+   - Use networkx where helpful or implement from scratch — ensure UCS/A* use edge weights.
+
+K-SHORTEST & MULTIPLE OPTIONS
+3. Add a helper to compute multiple route options (k-shortest by total weight). Use `networkx.algorithms.simple_paths.shortest_simple_paths(G, source, target, weight='weight')` to list alternatives and show the top-k (e.g., k=3). Return each option with its distance and nodes_explored for the algorithm that produced it (UCS/Dijkstra is recommended for ordering by weight).
+
+FLASK WEB UI + FOLIUM MAP
+4. webapp.py should:
+   - Provide an index page with dropdowns of nodes (source/destination), an algorithm selector (BFS/DFS/UCS/A*), and an integer input for number of alternative routes (k, default 3).
+   - On submit, compute:
+       - the chosen algorithm result (path + stats)
+       - the top-k alternative shortest paths (by weight)
+       - a comparison table (for each algorithm: path length, nodes explored count)
+   - Render results page with:
+       - A **Folium** interactive map embedding (use node coords from KML; if coords missing, fallback to NetworkX layout).
+       - Draw polylines for each alternative route (distinct colors) and highlight the best route (shortest distance) with thicker line + popup info.
+       - A side panel listing distances, walking times, and which route is recommended.
+   - Allow user to download the comparison CSV.
+
+VISUALIZATION (static and interactive)
+5. visualizer.py:
+   - Provide functions to create a static NetworkX+Matplotlib map (`save_static_map(path, filename='path.png')`).
+   - Provide a function `create_folium_map(paths, coords)` that returns an HTML or Folium map object to embed in Flask.
+
+TESTS & COMPARISON CSV
+6. tests.py should:
+   - Run example queries:
+     - Main Gate → Library
+     - Hostel A → Admin Block
+     - Sports Complex → Faculty Block
+   - For each query, run all algorithms, collect `distance_m` and `nodes_explored_count`, and write `comparison.csv` with columns:
+     ['query', 'algorithm', 'distance_m', 'walking_time_s', 'nodes_explored_count', 'path']
+
+REQUIREMENTS
+7. requirements.txt must include:
+   fastkml
+   shapely
+   networkx
+   matplotlib
+   pandas
+   geopy
+   flask
+   folium
+
+QUALITY & DOCUMENTATION
+8. - Organize code modularly and comment thoroughly.
+   - Make the CLI runnable via `python botbrain.py`.
+   - Make the Flask app runnable via `python webapp.py` (listen on 0.0.0.0, port 3000 by default for Replit).
+   - Provide README with run instructions and notes about uploading 'campus.kml' into the project root for accurate distances.
+
+BUG NOTE (explicit): Please ensure that when computing the 'distance' you SUM the edge weights along the returned path (don't use path length / number of edges). BFS/DFS may return a shortest-edge-count path, so the distance can be larger than UCS/A* results; that is expected.
